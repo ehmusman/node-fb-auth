@@ -11,7 +11,6 @@ const User = require('./models/User')
 
 const facebookStrategy = require('passport-facebook').Strategy
 
-app.set("view engine", "ejs")
 app.use(session({ secret: process.env.SESSION_SECRET_KEY }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -27,7 +26,7 @@ passport.use(new facebookStrategy({
 },// facebook will send back the token and profile
 
     function (token, refreshToken, profile, done) {
-        console.log("profile", profile)
+        // console.log("profile", profile)
         // asynchronous
         process.nextTick(function () {
 
@@ -90,9 +89,7 @@ passport.deserializeUser(function (id, done) {
 
 app.get('/profile', isLoggedIn, function (req, res) {
     console.log(req.user)
-    res.render('profile', {
-        user: req.user // get the user out of session and pass to template
-    });
+    res.send(req.user)
 });
 
 
@@ -120,13 +117,11 @@ app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }))
 app.get('/facebook/callback',
     passport.authenticate('facebook', {
         successRedirect: '/profile',
-        failureRedirect: '/'
+        failureRedirect: '/failed'
     }));
 
-
-
-app.get('/', (req, res) => {
-    res.render("index")
+app.get('/failed', (req, res) => {
+    res.send("Invalid User")
 })
 
 
